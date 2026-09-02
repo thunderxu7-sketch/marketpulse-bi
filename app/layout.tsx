@@ -4,15 +4,17 @@ import './globals.css';
 
 const geistSans = Geist({ variable: '--font-geist-sans', subsets: ['latin'] });
 const geistMono = Geist_Mono({ variable: '--font-geist-mono', subsets: ['latin'] });
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000';
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://marketpulse-bi.gray-xu.chatgpt.site';
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: 'MarketPulse BI — Financial Risk Observatory',
   description: 'A full-stack financial monitoring and business intelligence portfolio project.',
   applicationName: 'MarketPulse BI',
+  alternates: { canonical: '/' },
   openGraph: {
     type: 'website',
+    url: '/',
     title: 'MarketPulse BI',
     description: 'Financial Risk Observatory — live portfolio health, exposure, revenue, and alert operations.',
     images: [{ url: '/og.png', width: 1200, height: 630, alt: 'MarketPulse BI — Financial Risk Observatory' }],
@@ -23,6 +25,7 @@ export const metadata: Metadata = {
     description: 'Financial Risk Observatory — live portfolio health, exposure, revenue, and alert operations.',
     images: ['/og.png'],
   },
+  robots: { index: true, follow: true },
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {

@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://marketpulse-bi.gray-xu.chatgpt.site/sitemap.xml

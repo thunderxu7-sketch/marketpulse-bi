@@ -4,6 +4,8 @@ MarketPulse BI is a full-stack financial risk observatory built as a public
 portfolio project. It combines an executive analytics dashboard, operational
 risk workflows, a typed API, and durable edge storage in one deployable app.
 
+[Open the live demo](https://marketpulse-bi.gray-xu.chatgpt.site)
+
 > All assets, balances, events, and revenue figures are synthetic. This project
 > was independently built for demonstration and contains no proprietary source
 > code or production data.
@@ -89,8 +91,9 @@ npm run db:generate
 ## Deployment
 
 The production deployment uses OpenAI Sites with a Cloudflare-compatible
-runtime and managed D1 storage. The public demo URL will be linked here after
-the first release.
+runtime and managed D1 storage:
+
+**[marketpulse-bi.gray-xu.chatgpt.site](https://marketpulse-bi.gray-xu.chatgpt.site)**
 
 ## License
 

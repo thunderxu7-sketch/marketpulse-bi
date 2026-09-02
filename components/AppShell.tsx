@@ -8,18 +8,12 @@ import {
   Database,
   Github,
   LayoutDashboard,
+  Languages,
   LineChart,
   Settings2,
 } from 'lucide-react';
 import type { ReactNode } from 'react';
-
-const navigation = [
-  { href: '/', label: 'Overview', icon: LayoutDashboard },
-  { href: '/markets', label: 'Markets', icon: LineChart },
-  { href: '/events', label: 'Risk events', icon: BellRing },
-  { href: '/rules', label: 'Alert rules', icon: Settings2 },
-  { href: '/api-status', label: 'API status', icon: Database },
-];
+import { useI18n } from './I18n';
 
 export function AppShell({
   eyebrow,
@@ -35,33 +29,56 @@ export function AppShell({
   children: ReactNode;
 }) {
   const pathname = usePathname();
+  const { language, t, toggleLanguage } = useI18n();
+  const isPages = typeof window !== 'undefined' && (
+    window.location.hostname.endsWith('github.io') || window.location.pathname.startsWith('/marketpulse-bi')
+  );
+  const navigation = [
+    { href: '/', label: t('navOverview'), icon: LayoutDashboard },
+    { href: '/markets', label: t('navMarkets'), icon: LineChart },
+    { href: '/events', label: t('navEvents'), icon: BellRing },
+    { href: '/rules', label: t('navRules'), icon: Settings2 },
+    { href: '/api-status', label: t('navApi'), icon: Database },
+  ];
   return (
     <div className="app-shell">
       <aside className="sidebar">
-        <Link className="brand-row" href="/" aria-label="MarketPulse BI home">
+        <Link className="brand-row" href="/" aria-label="MarketPulse BI">
           <span className="brand-mark">M</span>
-          <div><strong>MarketPulse</strong><span>Financial BI</span></div>
+          <div><strong>MarketPulse</strong><span>{t('brandSubtitle')}</span></div>
         </Link>
         <nav aria-label="Primary navigation">
-          <p className="nav-label">Workspace</p>
+          <p className="nav-label">{t('workspace')}</p>
           {navigation.slice(0, 3).map(({ href, label, icon: Icon }) => (
             <Link className={`nav-item ${pathname === href ? 'active' : ''}`} href={href} key={href}>
               <Icon aria-hidden="true" size={16} strokeWidth={1.8} />{label}
             </Link>
           ))}
-          <p className="nav-label">Manage</p>
+          <p className="nav-label">{t('manage')}</p>
           {navigation.slice(3).map(({ href, label, icon: Icon }) => (
             <Link className={`nav-item ${pathname === href ? 'active' : ''}`} href={href} key={href}>
               <Icon aria-hidden="true" size={16} strokeWidth={1.8} />{label}
             </Link>
           ))}
         </nav>
-        <a className="source-link" href="https://github.com/thunderxu7-sketch/marketpulse-bi" target="_blank" rel="noreferrer">
-          <Github aria-hidden="true" size={15} />View source
-        </a>
+        <div className="sidebar-actions">
+          <button
+            aria-label={language === 'zh' ? t('switchToEnglish') : t('switchToChinese')}
+            className="language-toggle"
+            onClick={toggleLanguage}
+            type="button"
+          >
+            <Languages aria-hidden="true" size={15} />
+            <span className={language === 'zh' ? 'active' : ''}>中</span><i />
+            <span className={language === 'en' ? 'active' : ''}>EN</span>
+          </button>
+          <a className="source-link" href="https://github.com/thunderxu7-sketch/marketpulse-bi" target="_blank" rel="noreferrer">
+            <Github aria-hidden="true" size={15} />{t('viewSource')}
+          </a>
+        </div>
         <div className="sidebar-note">
           <span className="live-dot" />
-          <div><strong>Monitoring active</strong><small>Cloud API + D1 database</small></div>
+          <div><strong>{t('monitoringActive')}</strong><small>{t(isPages ? 'pagesStorage' : 'cloudStorage')}</small></div>
         </div>
       </aside>
 
@@ -76,8 +93,8 @@ export function AppShell({
         </header>
         {children}
         <footer className="site-footer">
-          <span><Activity aria-hidden="true" size={14} /> Synthetic portfolio data · Educational demo</span>
-          <span>React · TypeScript · ECharts · Cloudflare D1</span>
+          <span><Activity aria-hidden="true" size={14} /> {t('footerData')}</span>
+          <span>{t(isPages ? 'footerPagesStack' : 'footerStack')}</span>
         </footer>
       </main>
     </div>

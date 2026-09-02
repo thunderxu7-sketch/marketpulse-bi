@@ -1,6 +1,6 @@
 'use client';
 
-import ReactEChartsCore from 'echarts-for-react/lib/core';
+import ReactEChartsCore from 'echarts-for-react/esm/core';
 import * as echarts from 'echarts/core';
 import { BarChart, LineChart, PieChart } from 'echarts/charts';
 import {
@@ -34,7 +34,17 @@ function compactUsd(value: number) {
   return `$${value.toFixed(0)}`;
 }
 
-export function PortfolioTrendChart({ snapshots }: { snapshots: Snapshot[] }) {
+export function PortfolioTrendChart({
+  snapshots,
+  locale,
+  depositsLabel,
+  borrowsLabel,
+}: {
+  snapshots: Snapshot[];
+  locale: string;
+  depositsLabel: string;
+  borrowsLabel: string;
+}) {
   const option = {
     animationDuration: 550,
     grid: { top: 24, right: 12, bottom: 32, left: 12, containLabel: true },
@@ -54,7 +64,7 @@ export function PortfolioTrendChart({ snapshots }: { snapshots: Snapshot[] }) {
     },
     xAxis: {
       type: 'category',
-      data: snapshots.map((snapshot) => new Date(snapshot.capturedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })),
+      data: snapshots.map((snapshot) => new Date(snapshot.capturedAt).toLocaleDateString(locale, { month: 'short', day: 'numeric' })),
       boundaryGap: false,
       axisTick: { show: false },
       axisLine: { lineStyle: { color: grid } },
@@ -67,7 +77,7 @@ export function PortfolioTrendChart({ snapshots }: { snapshots: Snapshot[] }) {
     },
     series: [
       {
-        name: 'Deposits',
+        name: depositsLabel,
         type: 'line',
         smooth: 0.35,
         showSymbol: false,
@@ -81,7 +91,7 @@ export function PortfolioTrendChart({ snapshots }: { snapshots: Snapshot[] }) {
         data: snapshots.map((snapshot) => snapshot.totalDeposits),
       },
       {
-        name: 'Borrows',
+        name: borrowsLabel,
         type: 'line',
         smooth: 0.35,
         showSymbol: false,
@@ -93,7 +103,7 @@ export function PortfolioTrendChart({ snapshots }: { snapshots: Snapshot[] }) {
   return <ReactEChartsCore echarts={echarts} option={option} notMerge lazyUpdate opts={{ renderer: 'canvas' }} style={{ height: 286 }} />;
 }
 
-export function RevenueMixChart({ values }: { values: Array<{ name: string; value: number }> }) {
+export function RevenueMixChart({ values, revenueLabel }: { values: Array<{ name: string; value: number }>; revenueLabel: string }) {
   const option = {
     animationDuration: 500,
     tooltip: {
@@ -111,7 +121,7 @@ export function RevenueMixChart({ values }: { values: Array<{ name: string; valu
       textStyle: { color: axis, fontSize: 9 },
     },
     series: [{
-      name: 'Revenue',
+      name: revenueLabel,
       type: 'pie',
       radius: ['55%', '76%'],
       center: ['50%', '43%'],

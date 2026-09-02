@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://marketpulse-bi.gray-xu.chatgpt.site/sitemap.xml
+Sitemap: https://thunderxu7-sketch.github.io/marketpulse-bi/sitemap.xml

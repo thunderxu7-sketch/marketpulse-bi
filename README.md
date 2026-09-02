@@ -4,7 +4,7 @@ MarketPulse BI is a full-stack financial risk observatory built as a public
 portfolio project. It combines an executive analytics dashboard, operational
 risk workflows, a typed API, and durable edge storage in one deployable app.
 
-[Open the live demo](https://marketpulse-bi.gray-xu.chatgpt.site)
+[Open the stable GitHub Pages demo](https://thunderxu7-sketch.github.io/marketpulse-bi/)
 
 > All assets, balances, events, and revenue figures are synthetic. This project
 > was independently built for demonstration and contains no proprietary source
@@ -16,6 +16,8 @@ risk workflows, a typed API, and durable edge storage in one deployable app.
 
 - **Executive BI dashboard** — deposits, borrows, utilization, protocol health,
   bad-debt exposure, and revenue composition.
+- **Bilingual interface** — persistent Chinese and English switching across
+  dashboards, tables, charts, filters, events, rules, and service status.
 - **Interactive analytics** — responsive ECharts visualizations and a 30-day
   portfolio history.
 - **Market explorer** — server-side search, filtering, sorting, risk scoring,
@@ -39,9 +41,10 @@ risk workflows, a typed API, and durable edge storage in one deployable app.
 | Runtime | Cloudflare Workers-compatible edge deployment |
 | Quality | ESLint, TypeScript, Vitest, GitHub Actions |
 
-The application is deliberately self-contained: the frontend calls real API
-routes, and all workflow mutations are stored in D1 rather than mocked in local
-component state.
+The full-stack application calls real API routes, and all workflow mutations
+are stored in D1 rather than mocked in local component state. The GitHub Pages
+mirror reuses the same typed UI and API contract, with state persisted in the
+visitor's browser because GitHub Pages is a static hosting service.
 
 ## API
 
@@ -90,8 +93,12 @@ npm run db:generate
 
 ## Deployment
 
-The production deployment uses OpenAI Sites with a Cloudflare-compatible
-runtime and managed D1 storage:
+The stable public entry point is deployed automatically by GitHub Actions:
+
+**[thunderxu7-sketch.github.io/marketpulse-bi](https://thunderxu7-sketch.github.io/marketpulse-bi/)**
+
+The Cloudflare-compatible full-stack deployment with managed D1 storage remains
+available as a secondary endpoint:
 
 **[marketpulse-bi.gray-xu.chatgpt.site](https://marketpulse-bi.gray-xu.chatgpt.site)**
 

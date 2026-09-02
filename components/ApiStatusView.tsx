@@ -1,39 +1,58 @@
 'use client';
 
-import { CheckCircle2, Database, Server, ShieldCheck } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { CheckCircle2, Database, Server, ShieldCheck, TriangleAlert } from 'lucide-react';
+import { useEffect, useMemo, useState } from 'react';
 import { AppShell } from './AppShell';
 import { formatTime } from './Format';
+import { useI18n } from './I18n';
 
 interface Health { status: string; database: string; markets: number; timestamp: string }
 
-const endpoints = [
-  ['GET', '/api/dashboard', 'Aggregated KPIs, trends, revenue mix, markets, and events'],
-  ['GET', '/api/markets', 'Searchable and sortable market exposure'],
-  ['GET', '/api/events', 'Filterable operational event stream'],
-  ['PATCH', '/api/events/:id', 'Persistent event acknowledgement'],
-  ['GET', '/api/rules', 'Alert policy configuration'],
-  ['PATCH', '/api/rules/:id', 'Persistent rule enablement'],
-  ['POST', '/api/refresh', 'Rate-limited synthetic market cycle'],
-];
-
 export default function ApiStatusView() {
+  const { locale, t } = useI18n();
   const [health, setHealth] = useState<Health | null>(null);
-  useEffect(() => { void fetch('/api/health', { cache: 'no-store' }).then((response) => response.json()).then((value) => setHealth(value as Health)); }, []);
+  const [failed, setFailed] = useState(false);
+
+  const isPages = health?.database === 'browser-storage'
+    || (typeof window !== 'undefined' && window.location.hostname.endsWith('github.io'));
+
+  useEffect(() => {
+    void fetch('/api/health', { cache: 'no-store' })
+      .then((response) => {
+        if (!response.ok) throw new Error('Health check failed');
+        return response.json();
+      })
+      .then((value) => setHealth(value as Health))
+      .catch(() => setFailed(true));
+  }, []);
+
+  const endpoints = useMemo(() => [
+    ['GET', '/api/dashboard', t('endpointDashboard')],
+    ['GET', '/api/markets', t('endpointMarkets')],
+    ['GET', '/api/events', t('endpointEvents')],
+    ['PATCH', '/api/events/:id', t('endpointEventPatch')],
+    ['GET', '/api/rules', t('endpointRules')],
+    ['PATCH', '/api/rules/:id', t('endpointRulePatch')],
+    ['POST', '/api/refresh', t('endpointRefresh')],
+  ], [t]);
+
+  const headline = failed ? t('servicesUnavailable') : health ? t('systemsOperational') : t('checkingServices');
+  const detail = health ? t('verifiedAt', { time: formatTime(health.timestamp, locale) }) : t('connectingHealth');
+
   return (
-    <AppShell eyebrow="Platform health" title="API status" description="A transparent view of the serverless API and persistent storage behind the dashboard.">
+    <AppShell eyebrow={t('apiEyebrow')} title={t('apiTitle')} description={t(isPages ? 'apiDescriptionPages' : 'apiDescription')}>
       <section className="health-hero panel">
-        <div className="health-icon"><CheckCircle2 size={24} /></div>
-        <div><p className="eyebrow">Current status</p><h2>{health ? 'All systems operational' : 'Checking services…'}</h2><span>{health ? `Verified ${formatTime(health.timestamp)}` : 'Connecting to the health endpoint'}</span></div>
-        <span className="operational-badge">Operational</span>
+        <div className={`health-icon ${failed ? 'failed' : ''}`}>{failed ? <TriangleAlert size={24} /> : <CheckCircle2 size={24} />}</div>
+        <div><p className="eyebrow">{t('currentStatus')}</p><h2>{headline}</h2><span>{detail}</span></div>
+        <span className={`operational-badge ${failed ? 'failed' : ''}`}>{failed ? t('unavailable') : t('operational')}</span>
       </section>
       <section className="service-grid">
-        <article className="panel service-card"><Server size={19} /><span><strong>Edge API</strong><small>Cloudflare Worker-compatible server routes</small></span><b>Healthy</b></article>
-        <article className="panel service-card"><Database size={19} /><span><strong>D1 database</strong><small>{health ? `${health.markets} seeded markets available` : 'Persistent SQLite at the edge'}</small></span><b>Connected</b></article>
-        <article className="panel service-card"><ShieldCheck size={19} /><span><strong>Write controls</strong><small>Validation, same-origin checks, and refresh limits</small></span><b>Enabled</b></article>
+        <article className="panel service-card"><Server size={19} /><span><strong>{t('edgeApi')}</strong><small>{t(isPages ? 'localApiDescription' : 'edgeApiDescription')}</small></span><b>{failed ? t('unavailable') : t('healthy')}</b></article>
+        <article className="panel service-card"><Database size={19} /><span><strong>{t(isPages ? 'browserDatabase' : 'database')}</strong><small>{health ? t('seededMarkets', { count: health.markets }) : t(isPages ? 'browserPersistence' : 'edgeSqlite')}</small></span><b>{failed ? t('unavailable') : t('connected')}</b></article>
+        <article className="panel service-card"><ShieldCheck size={19} /><span><strong>{t('writeControls')}</strong><small>{t('writeControlsDescription')}</small></span><b>{t('enabledLabel')}</b></article>
       </section>
       <section className="panel endpoint-panel">
-        <div className="panel-heading"><div><p className="eyebrow">Backend surface</p><h2>API endpoints</h2></div><span className="panel-meta">JSON · no-store</span></div>
+        <div className="panel-heading"><div><p className="eyebrow">{t('backendSurface')}</p><h2>{t('apiEndpoints')}</h2></div><span className="panel-meta">{t('jsonNoStore')}</span></div>
         <div className="endpoint-list">{endpoints.map(([method, path, description]) => (
           <div key={`${method}-${path}`}><span className={`method ${method.toLowerCase()}`}>{method}</span><code>{path}</code><p>{description}</p></div>
         ))}</div>

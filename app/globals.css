@@ -1,6 +1,8 @@
 @import 'tailwindcss';
 
 :root {
+  --font-geist-sans: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-geist-mono: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
   --background: #f4f7f7;
   --surface: #ffffff;
   --ink: #132928;
@@ -143,8 +145,14 @@ td small { color: #8ba09d; font-size: 9px; }
 .brand-row { text-decoration: none; color: inherit; }
 .nav-item svg { flex: 0 0 auto; color: #71958f; }
 .nav-item.active svg, .nav-item:hover svg { color: #53c8b5; }
-.source-link { display: flex; align-items: center; justify-content: center; gap: 7px; margin: auto 0 10px; padding: 10px; border: 1px solid rgb(255 255 255 / 10%); border-radius: 10px; color: #aac4bf; font-size: 11px; text-decoration: none; }
+.sidebar-actions { display: grid; gap: 8px; margin-top: auto; }
+.source-link { display: flex; align-items: center; justify-content: center; gap: 7px; margin: 0; padding: 10px; border: 1px solid rgb(255 255 255 / 10%); border-radius: 10px; color: #aac4bf; font-size: 11px; text-decoration: none; }
 .source-link:hover { border-color: rgb(83 200 181 / 35%); color: #fff; }
+.language-toggle { display: flex; align-items: center; justify-content: center; gap: 7px; min-height: 36px; padding: 0 10px; border: 1px solid rgb(255 255 255 / 10%); border-radius: 10px; background: rgb(255 255 255 / 4%); color: #71958f; font-size: 10px; font-weight: 750; }
+.language-toggle:hover { border-color: rgb(83 200 181 / 35%); background: rgb(255 255 255 / 7%); }
+.language-toggle span.active { color: #fff; }
+.language-toggle i { width: 1px; height: 12px; background: rgb(255 255 255 / 16%); }
+.sidebar-actions + .sidebar-note { margin-top: 10px; }
 .page-description { max-width: 680px; margin: 9px 0 0; color: var(--muted); font-size: 12px; line-height: 1.45; }
 .sync-label { align-self: center; color: var(--muted); font-size: 10px; }
 .primary-button, .icon-button, .acknowledge-button { display: inline-flex; align-items: center; justify-content: center; gap: 7px; }
@@ -241,9 +249,11 @@ td.positive svg, td.danger svg { display: inline; margin-right: 3px; vertical-al
 
 .health-hero { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 14px; margin-bottom: 14px; }
 .health-icon { display: grid; place-items: center; width: 46px; height: 46px; border-radius: 14px; background: var(--brand-soft); color: var(--brand); }
+.health-icon.failed { background: #f8e4e4; color: var(--danger); }
 .health-hero h2 { margin-bottom: 4px; font-size: 17px; }
 .health-hero span { color: var(--muted); font-size: 10px; }
 .operational-badge { padding: 6px 10px; border-radius: 999px; background: #e6f4ed; color: #377659 !important; font-size: 9px !important; font-weight: 750; }
+.operational-badge.failed { background: #f8e4e4; color: var(--danger) !important; }
 .service-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-bottom: 14px; }
 .service-card { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 11px; }
 .service-card > svg { color: var(--brand); }
@@ -266,6 +276,8 @@ td.positive svg, td.danger svg { display: inline; margin-right: 3px; vertical-al
 }
 @media (max-width: 720px) {
   .source-link { display: none; }
+  .sidebar-actions { display: block; margin: 0 0 0 auto; }
+  .language-toggle { min-width: 96px; }
   .page-description { font-size: 11px; }
   .compact-metrics { grid-template-columns: 1fr; }
   .filter-row { align-items: stretch; flex-direction: column; }

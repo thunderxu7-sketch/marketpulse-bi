@@ -6,8 +6,14 @@ export function formatUsd(value: number, digits = 1) {
   return `$${value.toFixed(2)}`;
 }
 
-export function formatTime(value: string) {
-  return new Date(value).toLocaleString('en-US', {
+export function formatTime(value: string, locale = 'en-US') {
+  return new Date(value).toLocaleString(locale, {
     month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit', hour12: false,
+  });
+}
+
+export function formatDate(value: string, locale = 'en-US') {
+  return new Date(value).toLocaleDateString(locale, {
+    year: 'numeric', month: 'short', day: 'numeric',
   });
 }

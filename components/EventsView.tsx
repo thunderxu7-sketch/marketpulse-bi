@@ -5,8 +5,11 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import type { RiskEvent } from '@/lib/types';
 import { AppShell } from './AppShell';
 import { formatTime } from './Format';
+import { useI18n } from './I18n';
+import { localizeEvent, severityLabel } from './Localize';
 
 export default function EventsView() {
+  const { language, locale, t } = useI18n();
   const [events, setEvents] = useState<RiskEvent[]>([]);
   const [status, setStatus] = useState('all');
   const [severity, setSeverity] = useState('all');
@@ -43,31 +46,34 @@ export default function EventsView() {
   }), [events]);
 
   return (
-    <AppShell eyebrow="Operational response" title="Risk events" description="Review system signals and persist acknowledgement state through the monitoring API.">
+    <AppShell eyebrow={t('eventsEyebrow')} title={t('eventsTitle')} description={t('eventsDescription')}>
       <section className="compact-metrics">
-        <div><span>Visible open events</span><strong>{counts.open}</strong></div>
-        <div><span>Critical signals</span><strong>{counts.critical}</strong></div>
-        <div><span>Acknowledged</span><strong>{counts.acknowledged}</strong></div>
+        <div><span>{t('visibleOpenEvents')}</span><strong>{counts.open}</strong></div>
+        <div><span>{t('criticalSignalsLabel')}</span><strong>{counts.critical}</strong></div>
+        <div><span>{t('acknowledgedCount')}</span><strong>{counts.acknowledged}</strong></div>
       </section>
       <section className="panel data-panel">
         <div className="filter-row event-filter-row">
-          <label><span>Status</span><select value={status} onChange={(event) => setStatus(event.target.value)}><option value="all">All statuses</option><option value="open">Open</option><option value="acknowledged">Acknowledged</option></select></label>
-          <label><span>Severity</span><select value={severity} onChange={(event) => setSeverity(event.target.value)}><option value="all">All severities</option><option value="critical">Critical</option><option value="warning">Warning</option><option value="info">Info</option></select></label>
+          <label><span>{t('status')}</span><select value={status} onChange={(event) => setStatus(event.target.value)}><option value="all">{t('allStatuses')}</option><option value="open">{t('statusOpen')}</option><option value="acknowledged">{t('statusAcknowledged')}</option></select></label>
+          <label><span>{t('severity')}</span><select value={severity} onChange={(event) => setSeverity(event.target.value)}><option value="all">{t('allSeverities')}</option><option value="critical">{t('severityCritical')}</option><option value="warning">{t('severityWarning')}</option><option value="info">{t('severityInfo')}</option></select></label>
         </div>
         <div className="event-timeline">
-          {loading ? <p className="table-empty">Loading risk events…</p> : events.length ? events.map((event) => (
-            <article className="timeline-row" key={event.id}>
-              <span className={`timeline-icon ${event.severity}`}><CircleAlert size={16} /></span>
-              <div className="timeline-copy">
-                <div className="timeline-title"><span className={`severity-label ${event.severity}`}>{event.severity}</span><h2>{event.title}</h2>{event.symbol ? <span className="market-chip">{event.symbol}</span> : null}</div>
-                <p>{event.detail}</p>
-                <small><Clock3 size={12} />{formatTime(event.occurredAt)} · {event.eventType.replaceAll('_', ' ')}</small>
-              </div>
-              {event.status === 'open' ? (
-                <button className="ghost-button acknowledge-button" disabled={busyId === event.id} onClick={() => void acknowledge(event.id)}><Check size={14} />{busyId === event.id ? 'Saving…' : 'Acknowledge'}</button>
-              ) : <span className="acknowledged-label"><Check size={13} />Acknowledged</span>}
-            </article>
-          )) : <p className="table-empty">No events match these filters.</p>}
+          {loading ? <p className="table-empty">{t('loadingEvents')}</p> : events.length ? events.map((event) => {
+            const localized = localizeEvent(event, language);
+            return (
+              <article className="timeline-row" key={event.id}>
+                <span className={`timeline-icon ${event.severity}`}><CircleAlert size={16} /></span>
+                <div className="timeline-copy">
+                  <div className="timeline-title"><span className={`severity-label ${event.severity}`}>{severityLabel(event.severity, language)}</span><h2>{localized.title}</h2>{event.symbol ? <span className="market-chip">{event.symbol}</span> : null}</div>
+                  <p>{localized.detail}</p>
+                  <small><Clock3 size={12} />{formatTime(event.occurredAt, locale)} · {event.eventType.replaceAll('_', ' ')}</small>
+                </div>
+                {event.status === 'open' ? (
+                  <button className="ghost-button acknowledge-button" disabled={busyId === event.id} onClick={() => void acknowledge(event.id)}><Check size={14} />{busyId === event.id ? t('saving') : t('acknowledge')}</button>
+                ) : <span className="acknowledged-label"><Check size={13} />{t('acknowledged')}</span>}
+              </article>
+            );
+          }) : <p className="table-empty">{t('noEvents')}</p>}
         </div>
       </section>
     </AppShell>

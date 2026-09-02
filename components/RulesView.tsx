@@ -4,10 +4,14 @@ import { BellRing, ShieldCheck } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import type { AlertRule } from '@/lib/types';
 import { AppShell } from './AppShell';
+import { formatDate } from './Format';
+import { useI18n } from './I18n';
+import { localizeRuleName, severityLabel } from './Localize';
 
 const operatorLabel = { gt: '>', gte: '≥', lt: '<', lte: '≤' } as const;
 
 export default function RulesView() {
+  const { language, locale, t } = useI18n();
   const [rules, setRules] = useState<AlertRule[]>([]);
   const [busyId, setBusyId] = useState<number | null>(null);
 
@@ -35,24 +39,28 @@ export default function RulesView() {
   const enabledCount = useMemo(() => rules.filter((rule) => rule.enabled).length, [rules]);
 
   return (
-    <AppShell eyebrow="Policy configuration" title="Alert rules" description="Persistent D1-backed thresholds used to classify financial risk signals.">
+    <AppShell eyebrow={t('rulesEyebrow')} title={t('rulesTitle')} description={t('rulesDescription')}>
       <section className="rules-summary">
-        <div><ShieldCheck size={20} /><span><strong>{enabledCount} active rules</strong><small>Evaluated on every monitoring cycle</small></span></div>
-        <p>This public portfolio uses synthetic data. Rule changes persist in the shared demo database.</p>
+        <div><ShieldCheck size={20} /><span><strong>{t('activeRules', { count: enabledCount })}</strong><small>{t('evaluatedEveryCycle')}</small></span></div>
+        <p>{t('sharedDemoNote')}</p>
       </section>
       <section className="rule-grid">
-        {rules.map((rule) => (
-          <article className={`rule-card ${rule.enabled ? '' : 'disabled'}`} key={rule.id}>
-            <div className="rule-card-head">
-              <span className={`rule-icon ${rule.severity}`}><BellRing size={16} /></span>
-              <button aria-label={`${rule.enabled ? 'Disable' : 'Enable'} ${rule.name}`} className={`toggle ${rule.enabled ? 'on' : ''}`} disabled={busyId === rule.id} onClick={() => void toggle(rule)}><i /></button>
-            </div>
-            <span className={`severity-label ${rule.severity}`}>{rule.severity}</span>
-            <h2>{rule.name}</h2>
-            <p>Trigger when <code>{rule.metric}</code> is {operatorLabel[rule.operator]} <strong>{rule.threshold.toLocaleString()} {rule.unit}</strong>.</p>
-            <small>{rule.enabled ? 'Enabled' : 'Disabled'} · Updated {new Date(rule.updatedAt).toLocaleDateString('en-US')}</small>
-          </article>
-        ))}
+        {rules.map((rule) => {
+          const name = localizeRuleName(rule, language);
+          const unit = language === 'zh' && rule.unit === 'ratio' ? '倍' : rule.unit;
+          return (
+            <article className={`rule-card ${rule.enabled ? '' : 'disabled'}`} key={rule.id}>
+              <div className="rule-card-head">
+                <span className={`rule-icon ${rule.severity}`}><BellRing size={16} /></span>
+                <button aria-label={t(rule.enabled ? 'disableRule' : 'enableRule', { name })} className={`toggle ${rule.enabled ? 'on' : ''}`} disabled={busyId === rule.id} onClick={() => void toggle(rule)}><i /></button>
+              </div>
+              <span className={`severity-label ${rule.severity}`}>{severityLabel(rule.severity, language)}</span>
+              <h2>{name}</h2>
+              <p>{t('triggerWhen')} <code>{rule.metric}</code> {t('is')} {operatorLabel[rule.operator]} <strong>{rule.threshold.toLocaleString(locale)} {unit}</strong>.</p>
+              <small>{rule.enabled ? t('enabled') : t('disabled')} · {t('updated', { date: formatDate(rule.updatedAt, locale) })}</small>
+            </article>
+          );
+        })}
       </section>
     </AppShell>
   );

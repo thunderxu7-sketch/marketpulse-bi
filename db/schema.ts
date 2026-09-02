@@ -75,3 +75,38 @@ export const appState = sqliteTable('app_state', {
   value: text('value').notNull(),
   updatedAt: text('updated_at').notNull(),
 });
+
+export const automationAgents = sqliteTable(
+  'automation_agents',
+  {
+    id: integer('id').primaryKey({ autoIncrement: true }),
+    name: text('name').notNull(),
+    mission: text('mission').notNull(),
+    scope: text('scope').notNull(),
+    status: text('status', { enum: ['healthy', 'watch', 'critical', 'paused'] }).notNull(),
+    successRate: real('success_rate').notNull(),
+    runs24h: integer('runs_24h').notNull(),
+    medianLatencyMs: integer('median_latency_ms').notNull(),
+    lastRunAt: text('last_run_at').notNull(),
+    enabled: integer('enabled', { mode: 'boolean' }).notNull().default(true),
+    updatedAt: text('updated_at').notNull(),
+  },
+  (table) => [index('idx_automation_agents_status').on(table.status, table.enabled)],
+);
+
+export const teamMembers = sqliteTable(
+  'team_members',
+  {
+    id: integer('id').primaryKey({ autoIncrement: true }),
+    name: text('name').notNull(),
+    email: text('email').notNull(),
+    role: text('role', { enum: ['owner', 'risk', 'operator', 'viewer'] }).notNull(),
+    status: text('status', { enum: ['active', 'invited'] }).notNull(),
+    lastActiveAt: text('last_active_at').notNull(),
+    createdAt: text('created_at').notNull(),
+  },
+  (table) => [
+    uniqueIndex('idx_team_members_email').on(table.email),
+    index('idx_team_members_role_status').on(table.role, table.status),
+  ],
+);

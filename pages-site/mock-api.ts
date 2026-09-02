@@ -1,16 +1,19 @@
 import { clamp, healthScore, statusForRiskScore, utilization } from '@/lib/risk';
-import type { AlertRule, DashboardData, Market, RiskEvent, Snapshot } from '@/lib/types';
+import { buildOperationsData, defaultAutomationAgents, defaultTeamMembers } from '@/lib/operations';
+import type { AlertRule, AutomationAgent, DashboardData, Market, RiskEvent, Snapshot, TeamMember } from '@/lib/types';
 
 interface LocalState {
   markets: Market[];
   events: RiskEvent[];
   rules: AlertRule[];
   snapshots: Snapshot[];
+  automationAgents: AutomationAgent[];
+  teamMembers: TeamMember[];
   lastRefresh: string;
   refreshCount: number;
 }
 
-const storageKey = 'marketpulse-pages-db-v1';
+const storageKey = 'marketpulse-pages-db-v2';
 
 function minutesAgo(minutes: number) {
   return new Date(Date.now() - minutes * 60_000).toISOString();
@@ -81,7 +84,16 @@ function createSeedState(): LocalState {
       healthScore: Math.round(86 + Math.sin(index / 4) * 3),
     });
   }
-  return { markets, events, rules, snapshots, lastRefresh: minutesAgo(5), refreshCount: 0 };
+  return {
+    markets,
+    events,
+    rules,
+    snapshots,
+    automationAgents: defaultAutomationAgents(new Date(now)),
+    teamMembers: defaultTeamMembers(new Date(now)),
+    lastRefresh: minutesAgo(5),
+    refreshCount: 0,
+  };
 }
 
 function loadState() {
@@ -197,6 +209,9 @@ async function handleApi(url: URL, method: string, init?: RequestInit) {
     return json({ status: 'ok', database: 'browser-storage', markets: state.markets.length, timestamp: new Date().toISOString() });
   }
   if (method === 'GET' && url.pathname === '/api/dashboard') return json(dashboard(state));
+  if (method === 'GET' && url.pathname === '/api/operations') {
+    return json(buildOperationsData(state.markets, state.automationAgents, state.teamMembers));
+  }
   if (method === 'GET' && url.pathname === '/api/markets') {
     const status = url.searchParams.get('status') ?? 'all';
     const search = (url.searchParams.get('search') ?? '').trim().toLowerCase();
@@ -236,6 +251,28 @@ async function handleApi(url: URL, method: string, init?: RequestInit) {
     rule.updatedAt = new Date().toISOString();
     saveState(state);
     return json({ id: rule.id, enabled: rule.enabled, updatedAt: rule.updatedAt });
+  }
+  const agentMatch = url.pathname.match(/^\/api\/agents\/(\d+)$/);
+  if (method === 'PATCH' && agentMatch) {
+    const agent = state.automationAgents.find((item) => item.id === Number(agentMatch[1]));
+    if (!agent) return json({ error: 'Automation agent not found' }, 404);
+    const body = typeof init?.body === 'string' ? JSON.parse(init.body) as { enabled?: unknown } : {};
+    if (typeof body.enabled !== 'boolean') return json({ error: 'Invalid request' }, 400);
+    agent.enabled = body.enabled;
+    agent.status = body.enabled ? (agent.id === 3 ? 'watch' : 'healthy') : 'paused';
+    agent.updatedAt = new Date().toISOString();
+    saveState(state);
+    return json({ id: agent.id, enabled: agent.enabled, status: agent.status, updatedAt: agent.updatedAt });
+  }
+  const teamMatch = url.pathname.match(/^\/api\/team\/(\d+)$/);
+  if (method === 'PATCH' && teamMatch) {
+    const member = state.teamMembers.find((item) => item.id === Number(teamMatch[1]) && item.role !== 'owner');
+    if (!member) return json({ error: 'Editable team member not found' }, 404);
+    const body = typeof init?.body === 'string' ? JSON.parse(init.body) as { role?: unknown } : {};
+    if (!['risk', 'operator', 'viewer'].includes(String(body.role))) return json({ error: 'Invalid request' }, 400);
+    member.role = body.role as TeamMember['role'];
+    saveState(state);
+    return json({ id: member.id, role: member.role });
   }
   if (method === 'POST' && url.pathname === '/api/refresh') return refresh(state);
   return json({ error: 'Not found' }, 404);

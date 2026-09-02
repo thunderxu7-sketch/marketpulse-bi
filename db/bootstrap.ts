@@ -1,4 +1,5 @@
 import { env } from 'cloudflare:workers';
+import { defaultAutomationAgents, defaultTeamMembers } from '@/lib/operations';
 
 let initialization: Promise<void> | undefined;
 
@@ -56,6 +57,30 @@ const statements = [
     value TEXT NOT NULL,
     updated_at TEXT NOT NULL
   )`,
+  `CREATE TABLE IF NOT EXISTS automation_agents (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT NOT NULL,
+    mission TEXT NOT NULL,
+    scope TEXT NOT NULL,
+    status TEXT NOT NULL CHECK (status IN ('healthy', 'watch', 'critical', 'paused')),
+    success_rate REAL NOT NULL,
+    runs_24h INTEGER NOT NULL,
+    median_latency_ms INTEGER NOT NULL,
+    last_run_at TEXT NOT NULL,
+    enabled INTEGER NOT NULL DEFAULT 1 CHECK (enabled IN (0, 1)),
+    updated_at TEXT NOT NULL
+  )`,
+  `CREATE INDEX IF NOT EXISTS idx_automation_agents_status ON automation_agents(status, enabled)`,
+  `CREATE TABLE IF NOT EXISTS team_members (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT NOT NULL,
+    email TEXT NOT NULL UNIQUE,
+    role TEXT NOT NULL CHECK (role IN ('owner', 'risk', 'operator', 'viewer')),
+    status TEXT NOT NULL CHECK (status IN ('active', 'invited')),
+    last_active_at TEXT NOT NULL,
+    created_at TEXT NOT NULL
+  )`,
+  `CREATE INDEX IF NOT EXISTS idx_team_members_role_status ON team_members(role, status)`,
 ];
 
 function atOffset(minutes: number) {
@@ -91,6 +116,9 @@ function seedStatements(db: D1Database) {
     [5, 'Risk concentration', 'topMarketShare', 'gte', 35, '%', 'warning', 0],
   ];
 
+  const agents = defaultAutomationAgents(new Date(now));
+  const members = defaultTeamMembers(new Date(now));
+
   const prepared = [
     ...markets.map((row) => db.prepare(
       `INSERT OR IGNORE INTO markets
@@ -107,6 +135,19 @@ function seedStatements(db: D1Database) {
        (id, name, metric, operator, threshold, unit, severity, enabled, updated_at)
        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
     ).bind(...row, now)),
+    ...agents.map((agent) => db.prepare(
+      `INSERT OR IGNORE INTO automation_agents
+       (id, name, mission, scope, status, success_rate, runs_24h, median_latency_ms,
+        last_run_at, enabled, updated_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    ).bind(agent.id, agent.name, agent.mission, agent.scope, agent.status, agent.successRate,
+      agent.runs24h, agent.medianLatencyMs, agent.lastRunAt, agent.enabled ? 1 : 0, agent.updatedAt)),
+    ...members.map((member) => db.prepare(
+      `INSERT OR IGNORE INTO team_members
+       (id, name, email, role, status, last_active_at, created_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?)`,
+    ).bind(member.id, member.name, member.email, member.role, member.status,
+      member.lastActiveAt, member.createdAt)),
   ];
 
   for (let day = 29; day >= 0; day -= 1) {

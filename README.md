@@ -1,8 +1,9 @@
 # MarketPulse BI
 
 MarketPulse BI is a full-stack financial risk observatory built as a public
-portfolio project. It combines an executive analytics dashboard, operational
-risk workflows, a typed API, and durable edge storage in one deployable app.
+portfolio project. It combines an executive command center, 11 specialist
+workspaces, operational workflows, a typed API, and durable edge storage in one
+deployable app.
 
 [Open the stable GitHub Pages demo](https://thunderxu7-sketch.github.io/marketpulse-bi/)
 
@@ -14,16 +15,29 @@ risk workflows, a typed API, and durable edge storage in one deployable app.
 
 ## What it demonstrates
 
-- **Executive BI dashboard** — deposits, borrows, utilization, protocol health,
-  bad-debt exposure, and revenue composition.
+- **Executive command center** — deposits, borrows, utilization, protocol
+  health, revenue composition, and direct access to six operational modules.
 - **Bilingual interface** — persistent Chinese and English switching across
   dashboards, tables, charts, filters, events, rules, and service status.
-- **Interactive analytics** — responsive ECharts visualizations and a 30-day
-  portfolio history.
+- **Price-feed operations** — primary/fallback source registry, 24-hour
+  deviation trend, heartbeat, latency, confidence, and feed drill-down.
+- **Bad-debt operations** — version/network segmentation, provision coverage,
+  root-cause attribution, and recovery case queue.
+- **Automation control** — five monitored agents, persistent pause/resume
+  controls, success/latency SLAs, and an execution log.
+- **Fund-flow intelligence** — deposit, withdrawal, borrow, and repayment
+  trends with network/direction filters, large-transfer review, and CSV export.
+- **Revenue intelligence** — 7/30-day, USD/TRX, network, source, cumulative,
+  margin, share, and trend analysis.
+- **Liquidation intelligence** — network and token filters, repay/reward views,
+  execution-route analysis, and settlement status.
 - **Market explorer** — server-side search, filtering, sorting, risk scoring,
   and CSV export.
-- **Risk operations** — filterable event stream with persistent acknowledgement.
+- **Alert center** — searchable, filterable event stream with response SLA,
+  rule coverage, contextual drill-down, and persistent acknowledgement.
 - **Alert management** — editable, persistent alert-rule enablement.
+- **Access administration** — role capability matrix, searchable directory,
+  access audit feed, and persistent member-role assignment.
 - **Synthetic monitoring cycle** — rate-limited backend refresh that updates
   markets, stores a new snapshot, and periodically emits an event.
 - **Platform transparency** — live database/API health and documented endpoints.
@@ -53,10 +67,13 @@ visitor's browser because GitHub Pages is a static hosting service.
 | `GET` | `/api/health` | Runtime and database health |
 | `GET` | `/api/dashboard` | Aggregated KPIs, charts, markets, and recent events |
 | `GET` | `/api/markets` | Search, filter, and sort market exposure |
+| `GET` | `/api/operations` | All specialist operational analytics and records |
 | `GET` | `/api/events` | Filter the risk-event stream |
 | `PATCH` | `/api/events/:id` | Persist event acknowledgement |
 | `GET` | `/api/rules` | List configured alert rules |
 | `PATCH` | `/api/rules/:id` | Persist rule enablement |
+| `PATCH` | `/api/agents/:id` | Persist automation-agent pause/resume state |
+| `PATCH` | `/api/team/:id` | Persist member role assignment |
 | `POST` | `/api/refresh` | Run a rate-limited synthetic monitoring cycle |
 
 Write routes validate payloads and enforce same-origin browser requests. JSON

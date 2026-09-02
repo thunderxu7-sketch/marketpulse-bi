@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { AlertTriangle, Check, RefreshCw, TrendingDown, TrendingUp } from 'lucide-react';
+import { AlertTriangle, ArrowUpRight, Bot, Check, CircleDollarSign, RadioTower, RefreshCw, Scale, ShieldAlert, TrendingDown, TrendingUp, Waves } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import type { DashboardData, RiskEvent } from '@/lib/types';
 import { AppShell } from './AppShell';
@@ -78,6 +78,32 @@ export default function Dashboard() {
     { label: t('openRiskEvents'), value: String(data.summary.openEvents), detail: t('criticalSignals', { count: data.summary.criticalEvents }), tone: data.summary.criticalEvents ? 'danger' : 'positive' },
   ] : [], [data, t]);
 
+  const commandCopy = language === 'zh' ? {
+    label: '运营全景', title: '核心监控模块', all: '查看全部业务维度',
+    oracle: '价格源', oracleValue: '5 / 6 健康', oracleDetail: '1 个偏差超过 30 bps',
+    badDebt: '坏账处置', badDebtValue: '$401.5K', badDebtDetail: '4 个活跃追偿案例',
+    automation: '自动化', automationValue: '99.94%', automationDetail: '5 个机器人 · 3 个异常任务',
+    flows: '资金流动', flowsValue: '+$48.2M', flowsDetail: '30 天净流入',
+    revenue: '收入分析', revenueValue: '$5.0M', revenueDetail: '30 天收入 · 环比 +7.8%',
+    liquidations: '清算事件', liquidationValue: '$8.6M', liquidationDetail: '10 笔近期事件',
+  } : {
+    label: 'Operations panorama', title: 'Core monitoring modules', all: 'Explore every operating dimension',
+    oracle: 'Price feeds', oracleValue: '5 / 6 healthy', oracleDetail: '1 deviation above 30 bps',
+    badDebt: 'Bad-debt response', badDebtValue: '$401.5K', badDebtDetail: '4 active recovery cases',
+    automation: 'Automation', automationValue: '99.94%', automationDetail: '5 agents · 3 exception tasks',
+    flows: 'Fund flows', flowsValue: '+$48.2M', flowsDetail: '30-day net inflow',
+    revenue: 'Revenue analytics', revenueValue: '$5.0M', revenueDetail: '30-day revenue · +7.8%',
+    liquidations: 'Liquidations', liquidationValue: '$8.6M', liquidationDetail: '10 recent events',
+  };
+  const commandModules = [
+    { href: '/price-feeds', label: commandCopy.oracle, value: commandCopy.oracleValue, detail: commandCopy.oracleDetail, icon: RadioTower, tone: 'watch' },
+    { href: '/bad-debt', label: commandCopy.badDebt, value: commandCopy.badDebtValue, detail: commandCopy.badDebtDetail, icon: ShieldAlert, tone: 'critical' },
+    { href: '/automation', label: commandCopy.automation, value: commandCopy.automationValue, detail: commandCopy.automationDetail, icon: Bot, tone: 'healthy' },
+    { href: '/fund-flows', label: commandCopy.flows, value: commandCopy.flowsValue, detail: commandCopy.flowsDetail, icon: Waves, tone: 'healthy' },
+    { href: '/revenue', label: commandCopy.revenue, value: commandCopy.revenueValue, detail: commandCopy.revenueDetail, icon: CircleDollarSign, tone: 'healthy' },
+    { href: '/liquidations', label: commandCopy.liquidations, value: commandCopy.liquidationValue, detail: commandCopy.liquidationDetail, icon: Scale, tone: 'watch' },
+  ];
+
   return (
     <AppShell
       eyebrow={t('dashboardEyebrow')}
@@ -105,6 +131,13 @@ export default function Dashboard() {
                 <small className={metric.tone}>{metric.detail}</small>
               </article>
             ))}
+          </section>
+
+          <section className="panel command-modules">
+            <div className="panel-heading"><div><p className="eyebrow">{commandCopy.label}</p><h2>{commandCopy.title}</h2></div><span className="panel-meta">{commandCopy.all}</span></div>
+            <div className="command-module-grid">{commandModules.map(({ href, label, value, detail, icon: Icon, tone }) => <Link href={href} key={href}>
+              <span className={`command-icon ${tone}`}><Icon size={17} /></span><div><small>{label}</small><strong>{value}</strong><p>{detail}</p></div><ArrowUpRight size={13} />
+            </Link>)}</div>
           </section>
 
           <section className="dashboard-grid">

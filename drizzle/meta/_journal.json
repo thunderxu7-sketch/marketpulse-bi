@@ -8,6 +8,13 @@
       "when": 1788323007119,
       "tag": "0000_pale_hitman",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "6",
+      "when": 1788329729638,
+      "tag": "0001_lovely_princess_powerful",
+      "breakpoints": true
     }
   ]
 }

@@ -5,12 +5,19 @@ import { usePathname } from 'next/navigation';
 import {
   Activity,
   BellRing,
+  Bot,
+  CircleDollarSign,
   Database,
   Github,
   LayoutDashboard,
   Languages,
   LineChart,
+  RadioTower,
+  Scale,
   Settings2,
+  ShieldAlert,
+  Users,
+  Waves,
 } from 'lucide-react';
 import type { ReactNode } from 'react';
 import { useI18n } from './I18n';
@@ -34,11 +41,26 @@ export function AppShell({
     window.location.hostname.endsWith('github.io') || window.location.pathname.startsWith('/marketpulse-bi')
   );
   const navigation = [
-    { href: '/', label: t('navOverview'), icon: LayoutDashboard },
-    { href: '/markets', label: t('navMarkets'), icon: LineChart },
-    { href: '/events', label: t('navEvents'), icon: BellRing },
-    { href: '/rules', label: t('navRules'), icon: Settings2 },
-    { href: '/api-status', label: t('navApi'), icon: Database },
+    { label: t('workspace'), links: [{ href: '/', label: t('navOverview'), icon: LayoutDashboard }] },
+    { label: t('navDataMonitoring'), links: [
+      { href: '/markets', label: t('navMarkets'), icon: LineChart },
+      { href: '/price-feeds', label: t('navPriceFeeds'), icon: RadioTower },
+      { href: '/bad-debt', label: t('navBadDebt'), icon: ShieldAlert },
+      { href: '/automation', label: t('navAutomation'), icon: Bot },
+    ] },
+    { label: t('navFundMonitoring'), links: [
+      { href: '/fund-flows', label: t('navFundFlows'), icon: Waves },
+      { href: '/revenue', label: t('navRevenue'), icon: CircleDollarSign },
+    ] },
+    { label: t('navEventCenter'), links: [
+      { href: '/liquidations', label: t('navLiquidations'), icon: Scale },
+      { href: '/events', label: t('navEvents'), icon: BellRing },
+    ] },
+    { label: t('navAdministration'), links: [
+      { href: '/rules', label: t('navRules'), icon: Settings2 },
+      { href: '/team', label: t('navTeam'), icon: Users },
+      { href: '/api-status', label: t('navApi'), icon: Database },
+    ] },
   ];
   return (
     <div className="app-shell">
@@ -48,18 +70,14 @@ export function AppShell({
           <div><strong>MarketPulse</strong><span>{t('brandSubtitle')}</span></div>
         </Link>
         <nav aria-label="Primary navigation">
-          <p className="nav-label">{t('workspace')}</p>
-          {navigation.slice(0, 3).map(({ href, label, icon: Icon }) => (
-            <Link className={`nav-item ${pathname === href ? 'active' : ''}`} href={href} key={href}>
-              <Icon aria-hidden="true" size={16} strokeWidth={1.8} />{label}
-            </Link>
-          ))}
-          <p className="nav-label">{t('manage')}</p>
-          {navigation.slice(3).map(({ href, label, icon: Icon }) => (
-            <Link className={`nav-item ${pathname === href ? 'active' : ''}`} href={href} key={href}>
-              <Icon aria-hidden="true" size={16} strokeWidth={1.8} />{label}
-            </Link>
-          ))}
+          {navigation.map((group) => <div className="nav-group" key={group.label}>
+            <p className="nav-label">{group.label}</p>
+            {group.links.map(({ href, label, icon: Icon }) => (
+              <Link className={`nav-item ${pathname === href ? 'active' : ''}`} href={href} key={href}>
+                <Icon aria-hidden="true" size={16} strokeWidth={1.8} />{label}
+              </Link>
+            ))}
+          </div>)}
         </nav>
         <div className="sidebar-actions">
           <button

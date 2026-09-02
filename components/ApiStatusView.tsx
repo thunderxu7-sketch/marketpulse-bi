@@ -29,10 +29,13 @@ export default function ApiStatusView() {
   const endpoints = useMemo(() => [
     ['GET', '/api/dashboard', t('endpointDashboard')],
     ['GET', '/api/markets', t('endpointMarkets')],
+    ['GET', '/api/operations', t('endpointOperations')],
     ['GET', '/api/events', t('endpointEvents')],
     ['PATCH', '/api/events/:id', t('endpointEventPatch')],
     ['GET', '/api/rules', t('endpointRules')],
     ['PATCH', '/api/rules/:id', t('endpointRulePatch')],
+    ['PATCH', '/api/agents/:id', t('endpointAgentPatch')],
+    ['PATCH', '/api/team/:id', t('endpointTeamPatch')],
     ['POST', '/api/refresh', t('endpointRefresh')],
   ], [t]);
 

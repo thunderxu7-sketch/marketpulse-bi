@@ -1,0 +1,67 @@
+{
+  "name": "marketpulse-bi",
+  "version": "0.1.0",
+  "private": false,
+  "engines": {
+    "node": ">=22.13.0"
+  },
+  "scripts": {
+    "dev": "vinext dev",
+    "build": "vinext build",
+    "start": "vinext start",
+    "lint": "eslint . --ignore-pattern dist --ignore-pattern .next",
+    "db:generate": "drizzle-kit generate",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "verify": "npm run typecheck && npm run test && npm run build"
+  },
+  "dependencies": {
+    "drizzle-orm": "0.45.2",
+    "echarts": "^6.1.0",
+    "echarts-for-react": "^3.0.6",
+    "lucide-react": "^0.468.0",
+    "next": "16.3.4",
+    "react": "19.2.8",
+    "react-dom": "19.2.8",
+    "zod": "^4.5.4"
+  },
+  "devDependencies": {
+    "@cloudflare/vite-plugin": "1.54.3",
+    "@cloudflare/workers-types": "4.20260515.1",
+    "@openai/sites-vite-plugin": "0.2.0",
+    "@tailwindcss/postcss": "4.2.1",
+    "@types/node": "22.19.19",
+    "@types/react": "19.2.14",
+    "@types/react-dom": "19.2.3",
+    "@vitejs/plugin-react": "6.1.1",
+    "@vitejs/plugin-rsc": "0.5.34",
+    "drizzle-kit": "0.31.10",
+    "eslint": "9.39.4",
+    "eslint-config-next": "16.3.4",
+    "react-server-dom-webpack": "19.2.8",
+    "tailwindcss": "4.2.1",
+    "typescript": "5.9.3",
+    "vinext": "1.0.0-beta.8",
+    "vite": "8.2.2",
+    "vitest": "^4.1.11",
+    "wrangler": "4.128.0"
+  },
+  "type": "module",
+  "description": "Full-stack financial risk monitoring and business intelligence portfolio.",
+  "license": "MIT",
+  "homepage": "https://github.com/thunderxu7-sketch/marketpulse-bi#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/thunderxu7-sketch/marketpulse-bi.git"
+  },
+  "bugs": {
+    "url": "https://github.com/thunderxu7-sketch/marketpulse-bi/issues"
+  },
+  "keywords": [
+    "business-intelligence",
+    "financial-dashboard",
+    "risk-monitoring",
+    "cloudflare-d1",
+    "nextjs"
+  ]
+}
